@@ -27,7 +27,7 @@ func main() {
 
 	params := &dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{ // Required
-			"HashKeyElement": {
+			"user_key": {
 				S: aws.String(key),
 			},
 		},
