@@ -6,12 +6,13 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
 func main() {
 	key := "XXX"
-	svc := dynamodb.New(&aws.Config{Region: "us-west-1", LogLevel: 1})
+	svc := dynamodb.New(&aws.Config{Region: "us-west-1", LogLevel: 0})
 	fmt.Printf("%+v\n", svc)
 	result, err := svc.ListTables(&dynamodb.ListTablesInput{})
 	if err != nil {
@@ -26,14 +27,19 @@ func main() {
 
 	params := &dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{ // Required
-			"Key": {
+			"HashKeyElement": {
 				S: aws.String(key),
 			},
 		},
-		TableName:            aws.String("user_profiles"), // Required
-		ProjectionExpression: aws.String("user_key, version"),
+		TableName: aws.String("user_profiles"), // Required
+		AttributesToGet: []*string{
+			aws.String("user_key"),     // Required
+			aws.String("version"),      // Required
+			aws.String("user_profile"), // Required
+			// More values...
+		},
 	}
-
+	fmt.Println(awsutil.StringValue(params))
 	resp, err := svc.GetItem(params)
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok {
